@@ -1430,14 +1430,19 @@ public class DoubleMatrix implements Serializable {
     public String toString(String fmt, String open, String close, String colSep, String rowSep) {
         StringWriter s = new StringWriter();
         PrintWriter p = new PrintWriter(s);
+        int cnt=0;
 
+        int maxColRows = 5;
         p.print(open);
-
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < columns; c++) {
+        int rowlimit = rows; if (rowlimit > maxColRows) rowlimit = maxColRows;
+        int collimit = columns; if (collimit > maxColRows) collimit = maxColRows;
+        
+        for (int r = 0; r < rowlimit; r++) {
+            for (int c = 0; c < collimit; c++) {
                 p.printf(fmt, get(r, c));
                 if (c < columns - 1) {
                     p.print(colSep);
+                    cnt++;
                 }
             }
             if (r < rows - 1) {

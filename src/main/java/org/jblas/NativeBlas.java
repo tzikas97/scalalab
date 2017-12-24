@@ -186,6 +186,7 @@ public class NativeBlas {
   }
 
   public static native int dsyevd(char jobz, char uplo, int n, double[] a, int aIdx, int lda, double[] w, int wIdx, double[] work, int workIdx, int lwork, int[] iwork, int iworkIdx, int liwork);
+
   public static int dsyevd(char jobz, char uplo, int n, double[] a, int aIdx, int lda, double[] w, int wIdx) {
     int info;
     double[] work = new double[1];

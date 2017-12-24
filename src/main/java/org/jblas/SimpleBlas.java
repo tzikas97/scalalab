@@ -39,6 +39,9 @@
 
 package org.jblas;
 
+import static org.bytedeco.javacpp.gsl.CblasColMajor;
+import org.bytedeco.javacpp.openblas;
+import static org.bytedeco.javacpp.openblas.CblasNoTrans;
 import org.jblas.exceptions.*;
 
 import static org.jblas.util.Functions.*;
@@ -244,8 +247,17 @@ public class SimpleBlas {
 	 */
 	public static DoubleMatrix gemm(double alpha, DoubleMatrix a,
 			DoubleMatrix b, double beta, DoubleMatrix c) {
-		NativeBlas.dgemm('N', 'N', c.rows, c.columns, a.columns, alpha, a.data, 0,
-				a.rows, b.data, 0, b.rows, beta, c.data, 0, c.rows);
+       
+		
+            org.bytedeco.javacpp.openblas.cblas_dgemm(openblas.CblasColMajor, openblas.CblasNoTrans,
+                    openblas.CblasNoTrans, a.rows, c.columns, a.columns, alpha, a.data, a.rows, b.data, a.columns, beta, c.data, a.rows); 
+        //    NativeBlas.dgemm('N', 'N', c.rows, c.columns, a.columns, alpha, a.data, 0,
+	//			a.rows, b.data, 0, b.rows, beta, c.data, 0, c.rows);
+            
+          //   org.bytedeco.javacpp.openblas.cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, Arows, Ccolumns,  Acolumns, alpha,
+            //         flmThis, lda, flmThat, ldb, beta, 
+       // result, ldc);
+
 		return c;
 	}
 
@@ -337,8 +349,8 @@ public class SimpleBlas {
 			DoubleMatrix w) {
 		int n = A.rows;
 
-		int info = NativeBlas.dsyevd(jobz, uplo, n, A.data, 0, A.rows, w.data, 0);
-
+		int info = NativeBlas.dsyevd(jobz,uplo, n, A.data, 0, A.rows, w.data, 0);
+               
 		if (info > 0)
 			throw new LapackConvergenceException("SYEVD", "Not all eigenvalues converged.");
 
@@ -462,6 +474,9 @@ public class SimpleBlas {
 		}
 	}
 
+        
+        
+	
 	public static void geqrf(DoubleMatrix A, DoubleMatrix tau) {
 		int info = NativeBlas.dgeqrf(A.rows, A.columns, A.data, 0, A.rows, tau.data, 0);
 		checkInfo("GEQRF", info);
@@ -476,6 +491,11 @@ public class SimpleBlas {
   public static void orgqr(int n, int k, DoubleMatrix A, DoubleMatrix tau) {
     int info = NativeBlas.dorgqr(A.rows, n, k, A.data, 0, A.rows, tau.data, 0);
     checkInfo("ORGQR", info);
+  }
+
+   public static void orgqrob(int n, int k, DoubleMatrix A, DoubleMatrix tau) {
+    int info =    org.bytedeco.javacpp.openblas.LAPACKE_dgeqrf(openblas.LAPACK_ROW_MAJOR, A.rows, A.columns, A.data, A.rows, tau.data);
+    checkInfo("ORGQROB", info);
   }
 
 //BEGIN
