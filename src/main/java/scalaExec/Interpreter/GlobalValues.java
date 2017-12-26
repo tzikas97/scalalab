@@ -45,7 +45,7 @@ public class GlobalValues
 {
 
     
-    static public   String  scalalabBuildVersion = "25-Dec-17"; 
+    static public   String  scalalabBuildVersion = "26-Dec-17"; 
    
     static public ScalaInterpreterPane globalInterpreterPane;  // the interpreter pane object which is the main interface to the Scala interpreter
     static public Vector <String> interpreterClassPathComponents = new Vector<>();  // the class path components of the main interpreter
@@ -227,8 +227,8 @@ public class GlobalValues
     public static final int NotAnyImports = 14;
     
       
-    public static int interpreterTypeForPane = EJMLMat;  // the interpreter type used
-    static public String scalaInterpreterTypeProp=String.valueOf(EJMLMat);   // default 
+    public static int interpreterTypeForPane = JBLASMat;  // the interpreter type used
+    static public String scalaInterpreterTypeProp=String.valueOf(JBLASMat);   // default 
         
     public static boolean autoCompletionVariableSelected = false;  // avoid to execute text after selection of a variable from the autocompletion workspace
     public static boolean notOverlapTheConsoleOutput = true;  // avoid overlaping the Console with other windows
