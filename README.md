@@ -15,13 +15,13 @@
 
 `ScalaLab utilizes also and native C/C++ code for some important numerical operations. Although the speed  of pure Java code is generally adequate, optimized native code can provide further additional improvement. Also, the Java Native Interface (JNI) is utilized to interface with NVIDIA's CUDA technology, that provides dramatic speed improvements for many important tasks.`
 
-'However, a pure JVM version of ScalaLab is also provided with the project:'
+`However, a pure JVM version of ScalaLab is also provided with the project:`
 
 https://github.com/sterglee/PureJVMScalaLab
 
-'This version is lighter, and more portable, since it is based only on JVM components.'
+`This version is lighter, and more portable, since it is based only on JVM components.`
 
-'ScalaLab supports Java 8 and Java 9. However, Java 9 although is faster, has some minor problems with the jsyntaxPane completion'
+`ScalaLab supports Java 8 and Java 9. However, Java 9 although is faster, has some minor problems with the jsyntaxPane completion`
 
 ## Documentation
 
