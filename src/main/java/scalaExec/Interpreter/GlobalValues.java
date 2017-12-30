@@ -45,7 +45,7 @@ public class GlobalValues
 {
 
     
-    static public   String  scalalabBuildVersion = "28-Dec-17"; 
+    static public   String  scalalabBuildVersion = "30-Dec-17"; 
    
     static public ScalaInterpreterPane globalInterpreterPane;  // the interpreter pane object which is the main interface to the Scala interpreter
     static public Vector <String> interpreterClassPathComponents = new Vector<>();  // the class path components of the main interpreter
@@ -292,6 +292,7 @@ public class GlobalValues
     static public String workingDir;
 
     static public String buildTitle() {
+      
       String mainFrameTitle =        "ScalaLab:    Scala "+scala.tools.nsc.Properties.versionString()+",  library type: "+ GlobalValues.interpreterType()+ 
                    ",   "+System.getProperty("java.vm.name", "").toLowerCase()+",  "+ System.getProperty("os.name", "").toLowerCase()+
                    "  "+ System.getProperty("os.arch", "").toLowerCase()+" ,   "+
