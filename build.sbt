@@ -44,7 +44,6 @@ val classPath = Seq(
      "./lib/cglib-nodep-2.2.jar",
      "./lib/config.jar",
      "./lib/diffutils.jar",
-     "./lib/ejml.jar",
      "./lib/f2jutil.jar",
      "./lib/fjbg.jar",
      "./lib/funclate-131.jar",

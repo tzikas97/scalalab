@@ -53,17 +53,18 @@ final def copy() = {
 }
 
   // Array[Array[Double]] * Array[Array[Double]]
-  final def * (that: Mat) = {
-        new scalaSci.RichDouble2DArray(this) *** that.getArray
- }
+  final def * (that: Mat): Mat = {
+        new Mat(scalaSci.ParallelMult.pmul(this.getArray, that.getArray))
+        }
 
   // Array[Array[Double]] * Array[Array[Double]]
- final def * (that: Array[Array[Double]]) = {
-             new scalaSci.RichDouble2DArray(this) *** that  
+ final def * (that: Array[Array[Double]]): Mat = {
+   new Mat(scalaSci.ParallelMult.pmul(this.getArray, that))
   }
    
- override final def * (that: scalaSci.RichDouble2DArray) =  {
-        new Mat( (new scalaSci.RichDouble2DArray(this) *** that ).toDoubleArray)  
+  override final def * (that: scalaSci.RichDouble2DArray): Mat =  {
+     new Mat(scalaSci.ParallelMult.pmul(this.getArray, that.getArray))
+    
   }
   
   // copy to a new matrix, perhaps resizing also matrix
@@ -136,57 +137,6 @@ final def getv() = {
   }
 
   
-  
-    final def gsleig() = {
-      
-  import org.bytedeco.javacpp.gsl._
-  import org.bytedeco.javacpp.DoublePointer
-
-   var md = getv()
-   var dpmd = new DoublePointer(md: _*)
-   var M = this.Nrows
-   var N = this.Ncols
-   var m = gsl_matrix_view_array(dpmd, M, N )
-   var eval = gsl_vector_complex_alloc(M)
-   var evec = gsl_matrix_complex_alloc(M, N)
-   
-    var w = gsl_eigen_nonsymmv_alloc(M)
-    
-    gsl_eigen_nonsymmv(m.matrix, eval, evec, w)
-    
-    gsl_eigen_nonsymmv_free(w)
-  var evals = new scalaSci.RichDouble2DArray(M, 2)
-  var evecsReal = new scalaSci.RichDouble2DArray(M, N)
-  var evecsImag = new scalaSci.RichDouble2DArray(M, N)
-  
-    var i = 0
-    while  (i < M) {
-      var eval_i = gsl_vector_complex_get( eval, i)
-      
-      var evec_i = gsl_matrix_complex_column(evec, i)
-      
-      // get computed eigenvalues i
-      evals(i, 0) = eval_i.dat.get(0)
-      evals(i, 1) = eval_i.dat.get(1)
-      
-      // get computed eigenvector i
-      var j = 0
-      while (j < N) {
-          var z = gsl_vector_complex_get(evec_i.vector, j)
-          evecsReal(i, j) = z.dat.get(0)
-          evecsImag(i, j) = z.dat.get(1)
-          j += 1
-          }
-          i += 1
-        }
-          
-  
-        gsl_vector_complex_free(eval)
-        gsl_matrix_complex_free(evec)
-        
-    (evals, evecsReal, evecsImag)
-  }
-
  final def maps(f: java.util.function.DoubleUnaryOperator) = {
    var xm = sm.getMatrix.data
    DoubleStream.of(xm: _*).map(f).toArray
@@ -299,154 +249,6 @@ final def floor(v: Mat): Mat = {
     }
 
   
-//  multiply using native C implementation
-final def cc( that: Mat): Mat = {
-  var xx = this.getLibraryMatrixRef.getMatrix.getData
-  var yy = that.getLibraryMatrixRef.getMatrix
-  
-  var Arows = this.Nrows; var Acolumns = this.Ncols
-  var Ccolumns = that.numColumns()
-  var yyt = new DenseMatrix64F(Ccolumns, Acolumns)
- 
-  org.ejml.ops.CommonOps.transpose(yy, yyt)
-  var yys = yyt.getData
-  
-  
-  var result = new Array[Double](Arows*Ccolumns)
-     
-   
-  scalaExec.Interpreter.NativeLibsObj.nrObj.mul(xx, Arows, Acolumns, yys, Ccolumns, result)
-   
-  var rm = org.ejml.data.DenseMatrix64F.wrap( Arows, Ccolumns, result)
-  
-  new Mat(new org.ejml.simple.SimpleMatrix(rm))
-  }
-   
-  
-/*
-Solve a general linear system  A*x = b.
-     int solv(double a[],double b[],int n)
-       a = array containing system matrix A in row order
-            (altered to L-U factored form by computation)
-       b = array containing system vector b at entry and
-           solution vector x at exit
-       n = dimension of system
-      return:  0 -> normal exit
-              -1 -> singular input
-*/
-  final def ccsolv( b: Array[Double])  = {
-    val ccObj = scalaExec.Interpreter.NativeLibsObj.ccObj
-
-    val ad = this.getLibraryMatrixRef.getMatrix.getData
-    
-    val bc = b.clone
-    val M = Nrows
-   
-    // solve using C routine
-    ccObj.solv(ad, bc, M)
-    
-    bc
-    }
-    
-  
-/*
-Solve a symmetric positive definite linear system S*x = b.
-
-     int solvps(double a[],double b[],int n)
-       a = array containing system matrix S (altered to
-            Cholesky upper right factor by computation)
-       b = array containing system vector b as input and
-           solution vector x as output
-       n = dimension of system
-      return: 0 -> normal exit
-              1 -> input matrix not positive definite
-*/
-final def ccsolvps( b: Array[Double]) = {
-   val ccObj = scalaExec.Interpreter.NativeLibsObj.ccObj
-  
-    val ad = this.getLibraryMatrixRef.getMatrix.getData
-    val bc = b.clone
-    
-    val M = Nrows
-   
-    // solve using C routine
-    ccObj.solvps(ad, bc, M)
-    
-    bc
-    }
-    
-  
-  
-  
-  // full SVD decomposition using C routine
-final def ccsvd() = {
-  val ccObj = scalaExec.Interpreter.NativeLibsObj.ccObj
-
-  val xx = this.getLibraryMatrixRef.getMatrix.getData
-  
-  val M = this.Nrows; val N = this.Ncols
-  val d = new Array[Double](N)  // for the singular values
-  val u =  new Array[Double](M*M)
-  val v = new Array[Double](N*N)
-    
-  ccObj.svduv(d, xx, u, M, v, N)
-    
-  val um = org.ejml.data.DenseMatrix64F.wrap( M, M, u)
-  val vm = org.ejml.data.DenseMatrix64F.wrap( N, N, u)
-  
-  (um, d, vm)
-  }
-
-
-  // SVD decomposition, singular values only
-final def ccsvdval() = {
-  val ccObj = scalaExec.Interpreter.NativeLibsObj.ccObj
-
-    val xx = this.getLibraryMatrixRef.getMatrix.getData
-    
-    val M = this.Nrows; val N = this.Ncols
-    val d = new Array[Double](N)   // for the singular values
-    
-    ccObj.svdval(d, xx, M, N)
-    
-    d   // return the singular values
-  }
-  
-// inverse routine using native C routine
-final def ccinv() = {
-  val ccObj = scalaExec.Interpreter.NativeLibsObj.ccObj
-
-    val xx = this.getLibraryMatrixRef.getMatrix.getData
-    
-    val M = this.Nrows
-    
-    ccObj.minv( xx, M)
-    
-  val um = org.ejml.data.DenseMatrix64F.wrap( M, M, xx)
-  
- new Mat(new org.ejml.simple.SimpleMatrix(um) )
-  }
-  
-//   Performs a matrix multiplication operation.
-//        c = a * b 
-//   where c is the returned matrix, a is this matrix, and b is the passed in matrix.
-//       @param b A matrix that is n by bn. Not modified.
-//       @return The results of this operation.
-/*final def  * (that: Mat): Mat = {
-    var  rN = this.Nrows;   var rM = this.Ncols;
-    var  sN = that.Nrows;  var sM = that.Ncols;
-   
-    var ret = new SimpleMatrix(sm.getMatrix.numRows, that.sm.getMatrix.numCols)
-    CommonOps.mult(sm.getMatrix, that.sm.getMatrix, ret.getMatrix)
-
-    new Mat(ret)
- }
-   
- * 
- */
- 
-
-
 
 
 

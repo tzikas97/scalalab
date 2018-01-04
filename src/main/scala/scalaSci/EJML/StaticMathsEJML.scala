@@ -166,48 +166,6 @@ final def trace(M: Mat): Double = {
  M.trace
 }
 
-  
-/*
-Solve a general linear system  A*x = b.
-
-     int solv(double a[],double b[],int n)
-       a = array containing system matrix A in row order
-            (altered to L-U factored form by computation)
-       b = array containing system vector b at entry and
-           solution vector x at exit
-       n = dimension of system
-      return:  0 -> normal exit
-              -1 -> singular input
-*/
-
-final def ccsolv(A: Mat, b: Array[Double])  = {
-  A.ccsolv(b)
- }
- 
-  
-/*
-Solve a symmetric positive definite linear system S*x = b.
-
-     int solvps(double a[],double b[],int n)
-       a = array containing system matrix S (altered to
-            Cholesky upper right factor by computation)
-       b = array containing system vector b as input and
-           solution vector x as output
-       n = dimension of system
-      return: 0 -> normal exit
-              1 -> input matrix not positive definite
-*/
-
-final def ccsolvps(A: Mat, b: Array[Double]) = {
-  A.ccsolvps(b)
-}  
-  
- 
-  
-final def ccsvd(x: Mat) = x.ccsvd     // full SVD using C native code
-  
-final def ccsvdval(x: Mat) = x.ccsvdval   // singular values only using native C code
-
 // svd Singular value decomposition.
 //    (U,S,V) = svd(X) produces a diagonal matrix S, of the same 
 //    dimension as X and with nonnegative diagonal elements in
@@ -215,7 +173,6 @@ final def ccsvdval(x: Mat) = x.ccsvdval   // singular values only using native C
  
 final def svd(am: Mat) = am.svd()
 
-final def ccinv(am: Mat) = am.ccinv()   // invert the matrix using the C routine  
 
 
 final def eigAll(am: Mat) =  {
