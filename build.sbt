@@ -30,6 +30,7 @@ val classPath = Seq(
      "./lib/jfreesvg.jar",
      "./lib/jgraph.jar",
       "./lib/itext.jar",
+      "./lib/ejml.jar",
        "./lib/LBFGS.jar",
        "./lib/openblas.jar",
      "./lib/MTJColtSGTJCUDA.jar",
