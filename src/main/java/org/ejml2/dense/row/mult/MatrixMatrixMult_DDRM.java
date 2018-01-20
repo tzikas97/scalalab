@@ -22,6 +22,9 @@ import org.ejml2.MatrixDimensionException;
 import org.ejml2.data.DMatrix1Row;
 import org.ejml2.dense.row.CommonOps_DDRM;
 
+import edu.emory.mathcs.utils.ConcurrencyUtils;
+import scalaExec.Interpreter.GlobalValues;
+import java.util.concurrent.Future;
 /**
  * <p>
  * This class contains various types of matrix matrix multiplication operations for {@link DMatrix1Row}.
@@ -57,6 +60,12 @@ import org.ejml2.dense.row.CommonOps_DDRM;
  */
 @SuppressWarnings("Duplicates")
 public class MatrixMatrixMult_DDRM {
+  static public  int [] indexCbase = new int[100];         
+  static public  int threadId = 0;  // the current threadId
+  static public  int rowsPerThread;
+  static public int nthreads;
+ 
+
     /**
      * @see CommonOps_DDRM#mult( DMatrix1Row, DMatrix1Row, DMatrix1Row)
      */
@@ -107,6 +116,81 @@ public class MatrixMatrixMult_DDRM {
         }
     }
 
+    public static void pmult_reorder(DMatrix1Row a , DMatrix1Row b , DMatrix1Row c )
+    {
+        if( a == c || b == c )
+            throw new IllegalArgumentException("Neither 'a' or 'b' can be the same matrix as 'c'");
+        else if( a.numCols != b.numRows ) {
+            throw new MatrixDimensionException("The 'a' and 'b' matrices do not have compatible dimensions");
+        } else if( a.numRows != c.numRows || b.numCols != c.numCols ) {
+            throw new MatrixDimensionException("The results matrix does not have the desired dimensions");
+        }
+
+        if( a.numCols == 0 || a.numRows == 0 ) {
+            CommonOps_DDRM.fill(c,0);
+            return;
+        }
+        
+  nthreads = ConcurrencyUtils.getNumberOfThreads();
+  nthreads = Math.min(nthreads, a.numRows);  // larger number of threads than the number of cores of the system deteriorate performance
+  rowsPerThread = (int)(a.numRows / nthreads);  // how many rows the thread processes
+  
+  Future<?>[] futures = new Future[nthreads];
+    threadId=0;
+
+        while (threadId < nthreads)  {  // for all threads 
+       
+    
+ futures[threadId] = GlobalValues.execService.submit(new Runnable() {
+          int currentThread = threadId;
+       
+     public void run()  {
+             
+            int  firstRow = currentThread * rowsPerThread;
+          int  lastRow =   currentThread == nthreads-1? a.numRows: firstRow+rowsPerThread;
+      int indexCbase = c.numCols*rowsPerThread*currentThread;
+   
+      double valA;
+        int endOfKLoop = b.numRows*b.numCols;
+  
+            for( int i = firstRow; i < lastRow; i++ ) { // the last row of the matrix that this thread processes
+            int indexA = i*a.numCols;
+            
+            // need to assign c.data to a value initially
+            int indexB = 0;
+            int indexC = indexCbase;
+            int end = indexB + b.numCols;
+
+            valA = a.get(indexA++);
+     
+            while( indexB < end ) {
+                c.set(indexC++ , valA*b.get(indexB++));
+            }
+
+            // now add to it
+            while( indexB != endOfKLoop ) { // k loop
+                indexC = indexCbase;
+                end = indexB + b.numCols;
+
+                valA = a.get(indexA++);
+
+                while( indexB < end ) { // j loop
+                    c.plus(indexC++ , valA*b.get(indexB++));
+                }
+            }
+            indexCbase+= c.numCols;
+        }  // all rows
+    }  // run
+    } ); 
+// Runnable
+threadId++;
+  }  // for all threads
+
+   // wait for all the multiplication worker threads to complete
+  ConcurrencyUtils.waitForCompletion(futures);
+    }
+  
+ 
     /**
      * @see CommonOps_DDRM#mult( DMatrix1Row, DMatrix1Row, DMatrix1Row)
      */
