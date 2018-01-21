@@ -3981,21 +3981,21 @@ final def *** (that:  Array[Array[Double]]) = {
 final def *** (that: RichDouble2DArray) = {
   import org.bytedeco.javacpp.openblas._
   
-   var flmThis = oneDTransposeDoubleArray( this.v  )   // construct a FloatMatrix for the receiver
-   var flmThat = oneDTransposeDoubleArray(that.v)  // construct a FloatMatrix for the argument
-   var Arows = Nrows; var Acolumns = Ncols
-   var Ccolumns = that.Ncols
-   var result = new Array[Double](Arows*Ccolumns)
-   var alpha=1.0
-   var beta=0.0
-   var lda = Arows
-   var ldb = Acolumns
-   var ldc = Arows
+   val flmThis = oneDTransposeDoubleArray( this.v  )   // construct a FloatMatrix for the receiver
+   val flmThat = oneDTransposeDoubleArray(that.v)  // construct a FloatMatrix for the argument
+   val Arows = Nrows; var Acolumns = Ncols
+   val Ccolumns = that.Ncols
+   val result = new Array[Double](Arows*Ccolumns)
+   val alpha=1.0
+   val beta=0.0
+   val lda = Arows
+   val ldb = Acolumns
+   val ldc = Arows
       // perform the multiplication using CUDA  
     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, Arows, Ccolumns,  Acolumns, alpha, flmThis, lda, flmThat, ldb, beta, 
          result, ldc)
    
-    var rd = Array.ofDim[Double](Arows, Ccolumns)
+    val rd = Array.ofDim[Double](Arows, Ccolumns)
     var cnt = 0
     var r = 0;
     var c = 0
