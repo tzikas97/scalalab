@@ -25,7 +25,7 @@ package org.ejml2.data;
  */
 public class BMatrixRMaj implements ReshapeMatrix {
     /**
-     * 1D row-major array for storing theboolean matrix
+     * 1D row-major array for storing the boolean matrix
      */
     public boolean data[];
     /**
