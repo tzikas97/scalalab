@@ -42,7 +42,7 @@ public class GlobalValues
 {
 
     
-    static public   String  scalalabBuildVersion = "02-March-18"; 
+    static public   String  scalalabBuildVersion = "04-March-18"; 
    
     static public ScalaInterpreterPane globalInterpreterPane;  // the interpreter pane object which is the main interface to the Scala interpreter
     static public Vector <String> interpreterClassPathComponents = new Vector<>();  // the class path components of the main interpreter
@@ -133,6 +133,8 @@ public class GlobalValues
     
     static public Font defaultTextFont = new Font("DejaVu Sans Mono", Font.PLAIN, 14);     
    
+    static public Font minorTextFont = new Font("Arial", Font.PLAIN, 10);  // marks a not so important menu item
+    
      // some variables used to implement code completion
    static public boolean completionIsForSyntaxPane = true; //  controls if the jsyntaxpane or the rsyntaxarea editor triggered the completion
    static public JFrame completionFrame;  // the open completion Frame, it is used in order to dispose it with ESC

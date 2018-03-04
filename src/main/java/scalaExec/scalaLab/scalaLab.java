@@ -965,14 +965,14 @@ public class scalaLab extends JFrame implements WindowListener, ActionListener {
                 });
                 JMenu compileMenu = new JMenu("Compile");
                 compileMenu.setToolTipText("Compiles complete Java and Scala files (i.e. not scripts) and executes them");
-                compileMenu.setFont(GlobalValues.uifont);
+                compileMenu.setFont(GlobalValues.minorTextFont);
                 JMenuItem compileExecuteScalaJMenuItem = new JMenuItem(new CompileExecuteActionScala());
-                compileExecuteScalaJMenuItem.setFont(GlobalValues.uifont);
+                compileExecuteScalaJMenuItem.setFont(GlobalValues.minorTextFont);
                 compileExecuteScalaJMenuItem.setToolTipText("Compiles and executes the Scala object in the jsyntaxPane editor ");
                 JMenuItem compileExecuteExternalJavaJMenuItem = new JMenuItem(new CompileExecuteExternalActionJava());
-                compileExecuteExternalJavaJMenuItem.setFont(GlobalValues.uifont);
+                compileExecuteExternalJavaJMenuItem.setFont(GlobalValues.minorTextFont);
                 JMenuItem transformStandAloneJMenuItem = new JMenuItem("Transform a Script to standalone application");
-                transformStandAloneJMenuItem.setFont(GlobalValues.uifont);
+                transformStandAloneJMenuItem.setFont(GlobalValues.minorTextFont);
                 transformStandAloneJMenuItem.setToolTipText("Transforms the script to a Scala application that we can compile and  run as standalone");
                 transformStandAloneJMenuItem.addActionListener(new StandAloneApplicationActionScala());
                 compileMenu.add(compileExecuteScalaJMenuItem);
